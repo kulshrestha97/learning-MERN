@@ -8,6 +8,7 @@ const placesRoutes = require('./routes/places-routes');
 
 const app = express();
 
+app.use(bodyParser.json());
 app.use('/api/places',placesRoutes);
 
 // This is a special middleware that is recognised by express because of the first argument 'error'. 
