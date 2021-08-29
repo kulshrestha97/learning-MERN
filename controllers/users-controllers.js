@@ -1,5 +1,6 @@
 const HttpError = require("../models/http-error");
 const { v4: uuid } = require("uuid");
+const User = require("../models/user");
 const DUMMY_USERS = [
   {
     id: "u1",
@@ -9,28 +10,50 @@ const DUMMY_USERS = [
   },
 ];
 
-const getUsers = (req, res, next) => {
-  res.json({ users: DUMMY_USERS });
+const getUsers = async (req, res, next) => {
+  let users;
+  try {
+    users = await User.find({}, "email name");
+  } catch (error) {
+    return next(new HttpError(error, 500));
+  }
+  res.status(200).json({ users });
 };
 
-const signup = (req, res, next) => {
+const signup = async (req, res, next) => {
   const { name, email, password } = req.body;
-  const newUser = {
-    id: uuid(),
+  let user;
+  try {
+    user = await User.findOne({ email: email });
+  } catch (error) {
+    return next(new HttpError(error, 500));
+  }
+
+  const newUser = new User({
     name,
     email,
     password,
-  };
-  DUMMY_USERS.push(newUser);
-  res.status(201).json({ newUser });
+    places: [],
+  });
+  try {
+    await newUser.save();
+  } catch (error) {
+    return next(new HttpError(error, 404));
+  }
+  res.status(201).json({ message: "Successfully signed up the user" });
 };
 
-const login = (req, res, next) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
-  const identifiedUser = DUMMY_USERS.find((user) => user.email === email);
+  let identifiedUser;
+  try {
+    identifiedUser = await User.findOne({ email: email });
+  } catch (error) {
+    return next(new HttpError(error, 500));
+  }
 
   if (!identifiedUser || identifiedUser.password !== password) {
-    throw new HttpError("Credentials entered are wrong", 401);
+    return next(new HttpError("Credentials entered are wrong", 401));
   }
   res.json({ message: "Logged in!" });
 };
