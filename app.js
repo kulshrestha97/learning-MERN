@@ -6,7 +6,7 @@ const placesRoutes = require("./routes/places-routes");
 const userRoutes = require("./routes/users-routes");
 const mongoose = require("mongoose");
 const url =
-  "mongodb+srv://kulshrestha97:Password_123@cluster0.w9hnd.mongodb.net/mernDB?retryWrites=true&w=majority";
+  "AddYourMongoDBConnectionURLHere";
 
 const app = express();
 
